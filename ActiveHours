@@ -1,0 +1,35 @@
+$logFile = "C:\ActiveHoursLog.txt"
+
+# Function to append to log
+function Write-ToLog {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    Add-Content -Path $logFile -Value "$(Get-Date) - $Message"
+}
+
+# Ensure the script is run as administrator
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "You need to run this script as an Administrator!"
+    Write-ToLog "Error: Script was not run as Administrator."
+    Break
+}
+
+# Define registry path and keys
+$regPath = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"
+$startRegName = "ActiveHoursStart"
+$endRegName = "ActiveHoursEnd"
+
+# Try-catch block to catch any errors
+try {
+    # Set active hours (6AM to 9PM)
+    Set-ItemProperty -Path $regPath -Name $startRegName -Value 6
+    Set-ItemProperty -Path $regPath -Name $endRegName -Value 21
+
+    Write-Output "Active hours have been set to 6:00 AM to 9:00 PM"
+    Write-ToLog "Active hours have been set to 6:00 AM to 9:00 PM successfully."
+} catch {
+    Write-Error $_.Exception.Message
+    Write-ToLog "Error: $($_.Exception.Message)"
+}
