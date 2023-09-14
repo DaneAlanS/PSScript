@@ -13,26 +13,42 @@ function Write-ToLog {
 if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
     Write-Warning "You need to run this script as an Administrator!"
     Write-ToLog "Error: Script was not run as Administrator."
-    Break
+    Exit
 }
 
 # Define the URL and the shortcut name
 $url = "https://nwkls.agverso.com/home?cid=NWKLS&lid=GOVE"
-$shortcutName = "GoveVerso.url"
-$desktopPath = [System.Environment]::GetFolderPath('Desktop')
-$shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
+# For now, placing the shortcut in C:\ for demonstration. You might want to choose another common location.
+$shortcutName = "C:\MyShortcut.url"
+
+# Log initial configurations for debugging
+Write-ToLog "URL: $url"
+Write-ToLog "Target shortcut location: $shortcutName"
 
 # Try-catch block to catch any errors
 try {
-    # Creating a .url file with desired content
-    $urlFileContent = @"
+    # Check if we're making a .lnk or .url
+    if ($shortcutName -match "\.url$") {
+        # Creating a .url file with desired content
+        $urlFileContent = @"
 [InternetShortcut]
 URL=$url
 "@
-    Set-Content -Path $shortcutPath -Value $urlFileContent
-
-    Write-Output "URL shortcut created successfully on the desktop."
-    Write-ToLog "URL shortcut created successfully on the desktop."
+        Set-Content -Path $shortcutName -Value $urlFileContent
+        Write-Output "URL shortcut created successfully at $shortcutName."
+        Write-ToLog "URL shortcut created successfully at $shortcutName."
+    }
+    else {
+        # Create a WScript Shell Object for .lnk
+        $shell = New-Object -ComObject ("WScript.Shell")
+        $shortcut = $shell.CreateShortcut($shortcutName)
+        $shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+        $shortcut.Arguments = $url
+        $shortcut.IconLocation = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe,0"
+        $shortcut.Save()
+        Write-Output "Shortcut created successfully at $shortcutName."
+        Write-ToLog "Shortcut created successfully at $shortcutName."
+    }
 } catch {
     Write-Error $_.Exception.Message
     Write-ToLog "Error: $($_.Exception.Message)"
