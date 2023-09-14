@@ -18,7 +18,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 # Define the URL and the shortcut name
 $url = "https://nwkls.agverso.com/home?cid=NWKLS&lid=GOVE"
-$shortcutName = "Gove Verso.url"
+$shortcutName = "GoveVerso.url"
 $desktopPath = [System.Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
 
