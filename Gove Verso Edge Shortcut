@@ -1,14 +1,28 @@
-# Define the URL, the shortcut name, and the log file path
+$logFile = "C:\ShortcutCreationLog.txt"
+
+# Function to append to log
+function Write-ToLog {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    Add-Content -Path $logFile -Value "$(Get-Date) - $Message"
+}
+
+# Ensure the script is run as administrator
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "You need to run this script as an Administrator!"
+    Write-ToLog "Error: Script was not run as Administrator."
+    Break
+}
+
+# Define the URL and the shortcut name
 $url = "https://nwkls.agverso.com/home?cid=NWKLS&lid=GOVE"
-$shortcutName = "Gove Verso"
-$logFile = "C:\shortcutCreationLog.txt"
-
-# Get the desktop path
+$shortcutName = "Gove Verso.lnk"
 $desktopPath = [System.Environment]::GetFolderPath('Desktop')
-
-# Define the full path for the shortcut
 $shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
 
+# Try-catch block to catch any errors
 try {
     # Create a WScript Shell Object
     $shell = New-Object -ComObject ("WScript.Shell")
@@ -22,16 +36,13 @@ try {
     $shortcut.Arguments = $url
 
     # Optionally, you can specify the Edge icon
-    # This path may vary based on Edge installation location and version
-    $shortcut.IconLocation = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe,0" 
+    $shortcut.IconLocation = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe,0"
 
     $shortcut.Save()
 
-    # Log success message
-    Add-Content -Path $logFile -Value "Shortcut created successfully on $(Get-Date)"
+    Write-Output "Shortcut created successfully on the desktop."
+    Write-ToLog "Shortcut created successfully on the desktop."
+} catch {
+    Write-Error $_.Exception.Message
+    Write-ToLog "Error: $($_.Exception.Message)"
 }
-catch {
-    # Log the error message
-    Add-Content -Path $logFile -Value "Error creating shortcut on $(Get-Date): $_"
-}
-
