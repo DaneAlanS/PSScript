@@ -16,14 +16,17 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     Exit
 }
 
+# Fetch the desktop path
+$desktopPath = [System.Environment]::GetFolderPath('Desktop')
+
 # Define the URL and the shortcut name
 $url = "https://nwkls.agverso.com/home?cid=NWKLS&lid=GOVE"
-# For now, placing the shortcut in C:\ for demonstration. You might want to choose another common location.
-$shortcutName = "C:\MyShortcut.url"
+$shortcutName = "GoveVerso.url"
+$shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
 
 # Log initial configurations for debugging
 Write-ToLog "URL: $url"
-Write-ToLog "Target shortcut location: $shortcutName"
+Write-ToLog "Target shortcut location: $shortcutPath"
 
 # Try-catch block to catch any errors
 try {
@@ -34,20 +37,20 @@ try {
 [InternetShortcut]
 URL=$url
 "@
-        Set-Content -Path $shortcutName -Value $urlFileContent
-        Write-Output "URL shortcut created successfully at $shortcutName."
-        Write-ToLog "URL shortcut created successfully at $shortcutName."
+        Set-Content -Path $shortcutPath -Value $urlFileContent
+        Write-Output "URL shortcut created successfully at $shortcutPath."
+        Write-ToLog "URL shortcut created successfully at $shortcutPath."
     }
     else {
         # Create a WScript Shell Object for .lnk
         $shell = New-Object -ComObject ("WScript.Shell")
-        $shortcut = $shell.CreateShortcut($shortcutName)
+        $shortcut = $shell.CreateShortcut($shortcutPath)
         $shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
         $shortcut.Arguments = $url
         $shortcut.IconLocation = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe,0"
         $shortcut.Save()
-        Write-Output "Shortcut created successfully at $shortcutName."
-        Write-ToLog "Shortcut created successfully at $shortcutName."
+        Write-Output "Shortcut created successfully at $shortcutPath."
+        Write-ToLog "Shortcut created successfully at $shortcutPath."
     }
 } catch {
     Write-Error $_.Exception.Message
