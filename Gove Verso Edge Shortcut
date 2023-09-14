@@ -18,30 +18,21 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 
 # Define the URL and the shortcut name
 $url = "https://nwkls.agverso.com/home?cid=NWKLS&lid=GOVE"
-$shortcutName = "Gove Verso.lnk"
+$shortcutName = "Gove Verso.url"
 $desktopPath = [System.Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
 
 # Try-catch block to catch any errors
 try {
-    # Create a WScript Shell Object
-    $shell = New-Object -ComObject ("WScript.Shell")
+    # Creating a .url file with desired content
+    $urlFileContent = @"
+[InternetShortcut]
+URL=$url
+"@
+    Set-Content -Path $shortcutPath -Value $urlFileContent
 
-    # Create the shortcut
-    $shortcut = $shell.CreateShortcut($shortcutPath)
-
-    # Set the properties for the shortcut
-    # Point to Microsoft Edge and pass the URL as an argument
-    $shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-    $shortcut.Arguments = $url
-
-    # Optionally, you can specify the Edge icon
-    $shortcut.IconLocation = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe,0"
-
-    $shortcut.Save()
-
-    Write-Output "Shortcut created successfully on the desktop."
-    Write-ToLog "Shortcut created successfully on the desktop."
+    Write-Output "URL shortcut created successfully on the desktop."
+    Write-ToLog "URL shortcut created successfully on the desktop."
 } catch {
     Write-Error $_.Exception.Message
     Write-ToLog "Error: $($_.Exception.Message)"
