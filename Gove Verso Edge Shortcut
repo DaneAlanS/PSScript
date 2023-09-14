@@ -16,8 +16,8 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     Exit
 }
 
-# Fetch the desktop path
-$desktopPath = [System.Environment]::GetFolderPath('Desktop')
+# Fetch the public desktop path
+$desktopPath = "$env:PUBLIC\Desktop"
 
 # Define the URL and the shortcut name
 $url = "https://nwkls.agverso.com/home?cid=NWKLS&lid=GOVE"
