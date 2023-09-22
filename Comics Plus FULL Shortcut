@@ -20,7 +20,7 @@ if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
 $desktopPath = "$env:PUBLIC\Desktop"
 
 # Define the URL and the shortcut name
-$url = "https://login.comicsplus.app/"
+$url = "https://login.comicsplus.app/?library=2163"
 $shortcutName = "Comics Plus.url"
 $shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
 
