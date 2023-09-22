@@ -1,0 +1,58 @@
+$logFile = "C:\ShortcutCreationLog.txt"
+
+# Function to append to log
+function Write-ToLog {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Message
+    )
+    Add-Content -Path $logFile -Value "$(Get-Date) - $Message"
+}
+
+# Ensure the script is run as administrator
+if (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Warning "You need to run this script as an Administrator!"
+    Write-ToLog "Error: Script was not run as Administrator."
+    Exit
+}
+
+# Fetch the public desktop path
+$desktopPath = "$env:PUBLIC\Desktop"
+
+# Define the URL and the shortcut name
+$url = "https://digital.scholastic.com/site/launch/bkflix?ucn=600019449"
+$shortcutName = "Bookflix.url"
+$shortcutPath = Join-Path -Path $desktopPath -ChildPath $shortcutName
+
+# Log initial configurations for debugging
+Write-ToLog "URL: $url"
+Write-ToLog "Target shortcut location: $shortcutPath"
+
+# Try-catch block to catch any errors
+try {
+    # Check if we're making a .lnk or .url
+    if ($shortcutName -match "\.url$") {
+        # Creating a .url file with desired content
+        $urlFileContent = @"
+[InternetShortcut]
+URL=$url
+"@
+        Set-Content -Path $shortcutPath -Value $urlFileContent
+        Write-Output "URL shortcut created successfully at $shortcutPath."
+        Write-ToLog "URL shortcut created successfully at $shortcutPath."
+    }
+    else {
+        # Create a WScript Shell Object for .lnk
+        $shell = New-Object -ComObject ("WScript.Shell")
+        $shortcut = $shell.CreateShortcut($shortcutPath)
+        $shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+        $shortcut.Arguments = $url
+        $shortcut.IconLocation = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe,0"
+        $shortcut.Save()
+        Write-Output "Shortcut created successfully at $shortcutPath."
+        Write-ToLog "Shortcut created successfully at $shortcutPath."
+    }
+} catch {
+    Write-Error $_.Exception.Message
+    Write-ToLog "Error: $($_.Exception.Message)"
+}
